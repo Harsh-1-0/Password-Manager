@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Manager</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Password Manager</h2>
+        <form id="credentialForm">
+            <label for="site">Site:</label>
+            <input type="text" id="site" name="site" placeholder="Enter website URL" required>
+            
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter username or email" required>
+            
+            <label for="password">Password:</label>
+            <div class="password-container">
+                <input type="text" id="password" name="password" placeholder="Enter password" required>
+                <button type="button" id="generatePassword">Generate</button>
+            </div>
+            
+            <button type="submit" id="saveCredential">Save Credential</button>
+        </form>
+        <button id="showCredentials">Show Saved Credentials</button>
+        <div id="credentialsList"></div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>

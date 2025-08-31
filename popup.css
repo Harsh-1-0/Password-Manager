@@ -1,0 +1,231 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    line-height: 1.6;
+    width: 350px;
+    min-height: 400px;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    margin: 10px;
+}
+
+/* Header */
+h2 {
+    text-align: center;
+    color: #4a5568;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Form Styles */
+#credentialForm {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #2d3748;
+    font-size: 14px;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 15px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background: #f7fafc;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: white;
+}
+
+/* Password field container */
+.password-container {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    margin-bottom: 15px;
+}
+
+#password {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+/* Button Styles */
+button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#generatePassword {
+    background: #48bb78;
+    color: white;
+    font-size: 12px;
+    padding: 8px 12px;
+    white-space: nowrap;
+}
+
+#generatePassword:hover {
+    background: #38a169;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+}
+
+#saveCredential {
+    background: #667eea;
+    color: white;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+#saveCredential:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+#showCredentials {
+    background: #ed8936;
+    color: white;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+#showCredentials:hover {
+    background: #dd6b20;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(237, 137, 54, 0.4);
+}
+
+/* Credentials List */
+#credentialsList {
+    max-height: 200px;
+    overflow-y: auto;
+    border-top: 2px solid #e2e8f0;
+    padding-top: 15px;
+}
+
+.credential-item {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.credential-item:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.credential-site {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 5px;
+}
+
+.credential-username {
+    color: #4a5568;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.credential-password {
+    font-family: monospace;
+    background: #e2e8f0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #2d3748;
+    display: inline-block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 400px) {
+    body {
+        width: 300px;
+    }
+    
+    .container {
+        margin: 5px;
+        padding: 15px;
+    }
+    
+    .password-container {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    #generatePassword {
+        width: 100%;
+    }
+}
+
+/* Animation for form submission */
+.saving {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.success {
+    background: #48bb78 !important;
+    color: white !important;
+}
+
+/* Scrollbar styling */
+#credentialsList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#credentialsList::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#credentialsList::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+#credentialsList::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
