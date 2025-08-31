@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('credentialForm');
   const showBtn = document.getElementById('showCredentials');
   const siteInput = document.getElementById('site');
+  const fillBtn = document.getElementById('fillOnPage');
 
   // Try to auto-fill site with current tab's domain
   if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
@@ -140,7 +141,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
   genBtn.addEventListener('click', () => {
     pwdInput.value = generatePassword();
+    // Also push this generated value as a suggestion to the current page
+    try {
+      if (chrome?.tabs?.query) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const tabId = tabs && tabs[0]?.id;
+          if (!tabId) return;
+          chrome.tabs.sendMessage(tabId, { type: 'PASSBUDDY_SUGGEST', password: pwdInput.value });
+        });
+      }
+    } catch (e) {/* ignore */}
   });
+
+  // Fill the current page's password input with the value from the popup
+  if (fillBtn) {
+    fillBtn.addEventListener('click', async () => {
+      const pwd = pwdInput.value;
+      if (!pwd) return;
+      try {
+        if (chrome?.tabs?.query && chrome?.scripting?.executeScript) {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const tabId = tabs && tabs[0]?.id;
+            if (!tabId) return;
+            chrome.scripting.executeScript({
+              target: { tabId },
+              func: (value) => {
+                // Try typical password selectors
+                const candidates = [
+                  'input[type="password"]',
+                  'input[name*="password" i]',
+                  'input[id*="password" i]'
+                ];
+                let input = null;
+                for (const sel of candidates) {
+                  input = document.querySelector(sel);
+                  if (input) break;
+                }
+                if (!input) return false;
+                input.focus();
+                input.value = value;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                return true;
+              },
+              args: [pwd]
+            });
+          });
+        }
+      } catch (e) {
+        // ignore
+      }
+    });
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
