@@ -1,4 +1,5 @@
 // popup.js — UI wiring for the password manager extension popup
+
 // Simple password generator
 const generatePassword = (length = 16, useSymbols = true) => {
   const uChar = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -118,55 +119,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Try to auto-fill site with current tab's domain
   if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tab = tabs && tabs[0];
+      if (!tab || !tab.url) return;
+      try {
+        const url = new URL(tab.url);
+        const domain = url.hostname || url.origin || tab.url;
+        if (siteInput && !siteInput.value) siteInput.value = domain;
+      } catch (_) { /* ignore */ }
+    });
+  }
+
+  // Helpers for messaging/injection
+  function withActiveHttpTab(fn) {
+    if (!chrome?.tabs?.query) return;
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tab = tabs && tabs[0];
+      if (!tab || !tab.url || !/^https?:/i.test(tab.url)) return;
+      fn(tab);
+    });
+  }
+
+  function injectContent(tabId, cb) {
+    if (!chrome?.scripting?.executeScript) return cb && cb();
+    chrome.scripting.executeScript(
+      { target: { tabId }, files: ['content.js'] },
+      () => cb && cb()
+    );
+  }
+
+  function sendSuggestion(tabId, password) {
     try {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const tab = tabs && tabs[0];
-        if (!tab || !tab.url) return;
-        try {
-          const url = new URL(tab.url);
-          // Prefer hostname (domain), fallback to origin
-          const domain = url.hostname || url.origin || tab.url;
-          // Only set if field is empty so user can override
-          if (siteInput && !siteInput.value) {
-            siteInput.value = domain;
-          }
-        } catch (e) {
-          // ignore URL parse errors
+      chrome.tabs.sendMessage(tabId, { type: 'PASSBUDDY_SUGGEST', password }, () => {
+        if (chrome.runtime.lastError) {
+          injectContent(tabId, () => {
+            chrome.tabs.sendMessage(tabId, { type: 'PASSBUDDY_SUGGEST', password }, () => void 0);
+          });
         }
       });
-    } catch (e) {
-      // ignore
-    }
+    } catch (_) { /* ignore */ }
   }
 
   genBtn.addEventListener('click', () => {
     pwdInput.value = generatePassword();
-    // Also push this generated value as a suggestion to the current page
-    try {
-      if (chrome?.tabs?.query) {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          const tabId = tabs && tabs[0]?.id;
-          if (!tabId) return;
-          chrome.tabs.sendMessage(tabId, { type: 'PASSBUDDY_SUGGEST', password: pwdInput.value });
-        });
-      }
-    } catch (e) {/* ignore */}
+    withActiveHttpTab((tab) => sendSuggestion(tab.id, pwdInput.value));
   });
 
   // Fill the current page's password input with the value from the popup
   if (fillBtn) {
-    fillBtn.addEventListener('click', async () => {
+    fillBtn.addEventListener('click', () => {
       const pwd = pwdInput.value;
       if (!pwd) return;
-      try {
-        if (chrome?.tabs?.query && chrome?.scripting?.executeScript) {
-          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            const tabId = tabs && tabs[0]?.id;
-            if (!tabId) return;
-            chrome.scripting.executeScript({
-              target: { tabId },
+      withActiveHttpTab((tab) => {
+        sendSuggestion(tab.id, pwd);
+        if (chrome?.scripting?.executeScript) {
+          chrome.scripting.executeScript(
+            {
+              target: { tabId: tab.id },
               func: (value) => {
-                // Try typical password selectors
                 const candidates = [
                   'input[type="password"]',
                   'input[name*="password" i]',
@@ -185,12 +195,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return true;
               },
               args: [pwd]
-            });
-          });
+            },
+            () => void 0
+          );
         }
-      } catch (e) {
-        // ignore
-      }
+      });
     });
   }
 
