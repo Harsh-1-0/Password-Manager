@@ -9,6 +9,21 @@
 <body>
     <div class="container">
         <h2>Password Manager</h2>
+        <div id="lockSection" style="margin-bottom:12px; border:1px solid #e2e8f0; padding:10px; border-radius:8px;">
+            <div id="setupMaster" style="display:none;">
+                <label for="newMaster">Set master password:</label>
+                <input type="password" id="newMaster" placeholder="New master password">
+                <input type="password" id="confirmMaster" placeholder="Confirm master password" style="margin-top:6px;">
+                <button type="button" id="setMasterBtn" style="margin-top:8px; width:100%;">Set Master Password</button>
+            </div>
+            <div id="unlockMaster" style="display:none;">
+                <label for="masterKey">Enter master password to unlock:</label>
+                <input type="password" id="masterKey" placeholder="Master password">
+                <button type="button" id="unlockBtn" style="margin-top:8px; width:100%;">Unlock</button>
+            </div>
+            <div id="lockStatus" style="margin-top:6px; font-size:12px; color:#4a5568;">Locked</div>
+            <div id="lockError" style="display:none; margin-top:6px; font-size:12px; color:#e53e3e;">Error</div>
+        </div>
         <form id="credentialForm">
             <label for="site">Site:</label>
             <input type="text" id="site" name="site" placeholder="Enter website URL" required>
